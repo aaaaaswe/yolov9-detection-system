@@ -1,0 +1,97 @@
+# YOLOv9 配置文件
+
+# 模型配置
+model:
+  # 模型大小选择: n(nano), s(small), m(medium), l(large), x(extra large)
+  size: "y"
+  # 预训练权重路径 (留空则自动下载官方权重)
+  weights: ""
+  # 模型保存路径
+  save_dir: "runs/train"
+
+# 训练配置
+train:
+  # 数据集配置文件路径
+  data: "data/custom_dataset/data.yaml"
+  # 训练轮数
+  epochs: 100
+  # 批次大小
+  batch_size: 16
+  # 图像大小
+  image_size: 640
+  # 优化器选择: SGD, Adam, AdamW, auto
+  optimizer: "auto"
+  # 初始学习率
+  learning_rate: 0.01
+  # 学习率衰减
+  lrf: 0.01
+  # 动量
+  momentum: 0.937
+  # 权重衰减
+  weight_decay: 0.0005
+  # 早停耐心值
+  patience: 50
+  # 保存周期 (每N轮保存一次)
+  save_period: 10
+  # 设备: auto, cpu, 0, 1, 2, ...
+  device: "auto"
+  # 工作线程数
+  workers: 8
+  # 数据增强
+  augment: true
+  # Mosaic增强
+  mosaic: 1.0
+  # 混合增强
+  mixup: 0.0
+
+# 检测配置
+detect:
+  # 模型权重路径
+  weights: "yolov9y.pt"
+  # 置信度阈值
+  conf_threshold: 0.25
+  # IOU阈值 (用于NMS)
+  iou_threshold: 0.45
+  # 最大检测数量
+  max_detections: 300
+  # 设备
+  device: "auto"
+  # 是否显示标签
+  show_labels: true
+  # 是否显示置信度
+  show_conf: true
+  # 线条宽度
+  line_width: 2
+
+# 数据集配置
+dataset:
+  # 数据集根目录
+  path: "data/custom_dataset"
+  # 类别数量
+  num_classes: 0
+  # 类别名称列表
+  classes: []
+  # 训练集比例
+  train_ratio: 0.7
+  # 验证集比例
+  val_ratio: 0.2
+  # 测试集比例
+  test_ratio: 0.1
+
+# 日志配置
+logging:
+  # 是否使用TensorBoard
+  use_tensorboard: true
+  # TensorBoard保存目录
+  tensorboard_dir: "runs/tensorboard"
+  # 保存日志间隔
+  save_period: 10
+
+# 导出配置
+export:
+  # 导出格式: onnx, torchscript, coreml, tflite
+  format: "onnx"
+  # 是否简化模型
+  simplify: true
+  # 是否使用动态轴
+  dynamic: false
