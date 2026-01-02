@@ -15,9 +15,17 @@ import time
 from pathlib import Path
 
 # 添加父目录到路径以导入本地模块
-sys.path.insert(0, str(Path(__file__).parent.parent))
+project_root = Path(__file__).parent.parent.absolute()
+sys.path.insert(0, str(project_root))
 
-from detect import YOLOv9Detector
+# 尝试导入检测器
+try:
+    from detect import YOLOv9Detector
+    DETECTOR_AVAILABLE = True
+except ImportError as e:
+    st.warning(f"警告: 无法导入 detect 模块: {e}")
+    st.warning("使用内置的简化检测器...")
+    DETECTOR_AVAILABLE = False
 
 # 页面配置
 st.set_page_config(
@@ -49,16 +57,65 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
+# 简化的检测器类（备用）
+class SimpleDetector:
+    """简化的 YOLO 检测器（当 detect.py 不可用时使用）"""
+
+    def __init__(self, weights='yolov8s.pt', conf=0.25, iou=0.45, max_det=300):
+        """初始化检测器"""
+        from ultralytics import YOLO
+
+        self.conf = conf
+        self.iou = iou
+        self.max_det = max_det
+
+        # 加载模型
+        st.info(f"正在加载模型: {weights}")
+        self.model = YOLO(weights)
+
+        # 获取类别名称（使用 COCO 数据集）
+        self.class_names = self.model.names if hasattr(self.model, 'names') else [
+            'person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck',
+            'boat', 'traffic light', 'fire hydrant', 'stop sign', 'parking meter',
+            'bench', 'bird', 'cat', 'dog', 'horse', 'sheep', 'cow', 'elephant',
+            'bear', 'zebra', 'giraffe', 'backpack', 'umbrella', 'handbag', 'tie',
+            'suitcase', 'frisbee', 'skis', 'snowboard', 'sports ball', 'kite',
+            'baseball bat', 'baseball glove', 'skateboard', 'surfboard', 'tennis racket',
+            'bottle', 'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl', 'banana',
+            'apple', 'sandwich', 'orange', 'broccoli', 'carrot', 'hot dog', 'pizza',
+            'donut', 'cake', 'chair', 'couch', 'potted plant', 'bed', 'dining table',
+            'toilet', 'tv', 'laptop', 'mouse', 'remote', 'keyboard', 'cell phone',
+            'microwave', 'oven', 'toaster', 'sink', 'refrigerator', 'book', 'clock',
+            'vase', 'scissors', 'teddy bear', 'hair drier', 'toothbrush'
+        ]
+
+        # 生成颜色
+        import random
+        self.colors = [[random.randint(0, 255) for _ in range(3)] for _ in range(len(self.class_names))]
+
+        st.success(f"模型加载成功! 检测类别: {len(self.class_names)}")
+
+
 @st.cache_resource
 def load_detector(weights='yolov8s.pt', conf=0.25, iou=0.45, device='cpu'):
     """加载检测器（缓存）"""
     try:
-        detector = YOLOv9Detector(
-            weights=weights,
-            conf=conf,
-            iou=iou,
-            max_det=300
-        )
+        if DETECTOR_AVAILABLE:
+            # 使用项目的 YOLOv9Detector
+            detector = YOLOv9Detector(
+                weights=weights,
+                conf=conf,
+                iou=iou,
+                max_det=300
+            )
+        else:
+            # 使用简化的检测器
+            detector = SimpleDetector(
+                weights=weights,
+                conf=conf,
+                iou=iou,
+                max_det=300
+            )
         return detector
     except Exception as e:
         st.error(f"模型加载失败: {e}")

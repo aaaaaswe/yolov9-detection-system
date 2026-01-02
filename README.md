@@ -385,6 +385,192 @@ train_args = {
 
 本项目采用AGPL-3.0许可证。
 
+## 常见问题 (FAQ)
+
+### 1. Windows 上运行 Web 应用失败
+
+#### 问题: `'streamlit' 不是内部或外部命令`
+
+**原因**: Streamlit 未添加到系统 PATH
+
+**解决方案**:
+
+**方法 1 - 使用完整路径启动**:
+```cmd
+C:\Python\Python310\Scripts\streamlit.exe run web_app\app.py
+```
+
+**方法 2 - 添加到 PATH**:
+1. 打开"环境变量"设置
+2. 编辑"系统变量"中的 `Path`
+3. 添加: `C:\Python\Python310\Scripts\`
+4. 重新打开命令提示符
+
+**方法 3 - 使用环境修复脚本**:
+```cmd
+fix_env.bat
+```
+
+#### 问题: `ModuleNotFoundError: No module named 'detect'`
+
+**原因**: detect.py 模块导入失败
+
+**解决方案**:
+
+**方法 1 - 运行环境检查**:
+```bash
+python check_webapp.py
+```
+
+**方法 2 - 检查文件结构**:
+确保项目结构如下：
+```
+yolov9-detection-system/
+├── detect.py              # 必须存在
+├── train.py
+├── web_app/
+│   └── app.py
+└── ...
+```
+
+**方法 3 - 手动安装依赖**:
+```bash
+pip install ultralytics opencv-python numpy pillow streamlit
+```
+
+### 2. 模型加载失败
+
+#### 问题: `ModuleNotFoundError: No module named 'ultralytics'`
+
+**解决方案**:
+```bash
+pip install ultralytics
+```
+
+#### 问题: 模型下载慢
+
+**解决方案**:
+1. 手动下载模型: https://github.com/ultralytics/assets/releases
+2. 放到项目根目录
+3. 指定本地路径: `--weights yolov8s.pt`
+
+### 3. CUDA 相关问题
+
+#### 问题: CUDA out of memory
+
+**解决方案**:
+- 减小批次大小: `--batch 8`
+- 使用更小的模型: `--model_size n`
+- 清理 GPU 缓存
+```python
+import torch
+torch.cuda.empty_cache()
+```
+
+#### 问题: CUDA not available
+
+**检查 CUDA 是否安装**:
+```bash
+python -c "import torch; print(torch.cuda.is_available())"
+```
+
+如果返回 `False`，需要：
+1. 安装 CUDA Toolkit
+2. 安装 PyTorch CUDA 版本
+```bash
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
+```
+
+### 4. Web 应用相关问题
+
+#### 问题: 警告: `Thread 'MainThread': missing ScriptRunContext`
+
+**原因**: 使用 `python app.py` 而不是 `streamlit run app.py`
+
+**解决方案**:
+```bash
+# 错误 ❌
+python web_app/app.py
+
+# 正确 ✅
+streamlit run web_app/app.py
+```
+
+#### 问题: 浏览器无法访问 `http://localhost:8501`
+
+**检查清单**:
+1. Streamlit 是否正在运行（查看终端）
+2. 检查防火墙设置
+3. 尝试使用 `http://127.0.0.1:8501`
+
+#### 问题: 端口被占用
+
+**解决方案** - 更换端口:
+```bash
+streamlit run web_app/app.py --server.port 8502
+```
+
+### 5. 训练问题
+
+#### 问题: 训练中断
+
+**解决方案** - 使用断点续训:
+```bash
+python train.py --mode resume --resume runs/train/exp/weights/last.pt
+```
+
+#### 问题: 训练速度慢
+
+**解决方案**:
+1. 使用 GPU: `--device 0`
+2. 增加批次大小（如果显存足够）: `--batch 32`
+3. 减小图像尺寸: `--imgsz 512`
+
+### 6. GUI 相关问题
+
+#### 问题: `ModuleNotFoundError: No module named 'PyQt6'`
+
+**解决方案**:
+```bash
+pip install PyQt6
+```
+
+或运行:
+```bash
+start_gui.bat  # Windows
+./start_gui.sh  # Linux/Mac
+```
+
+### 7. 依赖安装失败
+
+#### 问题: pip install 速度慢
+
+**解决方案** - 使用国内镜像:
+```bash
+pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+```
+
+#### 问题: 版本冲突
+
+**解决方案** - 使用虚拟环境:
+```bash
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+venv\Scripts\activate     # Windows
+pip install -r requirements.txt
+```
+
+### 获取更多帮助
+
+如果以上解决方案无法解决你的问题：
+
+1. 查看详细日志
+2. 检查 GitHub Issues: https://github.com/aaaaaswe/yolov9-detection-system/issues
+3. 提交新的 Issue，并附上：
+   - 操作系统和 Python 版本
+   - 完整的错误信息
+   - 复现步骤
+
 ## 致谢
 
 - [Ultralytics YOLO](https://github.com/ultralytics/ultralytics) - YOLO实现
