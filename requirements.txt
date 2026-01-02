@@ -13,3 +13,4 @@ scipy>=1.10.0
 tensorboard>=2.13.0
 onnx>=1.14.0
 onnxruntime>=1.15.0
+PyQt6>=6.0.0
