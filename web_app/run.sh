@@ -1,50 +1,72 @@
 #!/bin/bash
 
-# Streamlit Web应用启动脚本
+# Streamlit Web Application Launcher
+# YOLOv9 Detection System
 
-echo "=========================================="
-echo "YOLOv9 Web应用 - Streamlit"
-echo "=========================================="
+echo "========================================"
+echo "   YOLOv9 Web Application Launcher"
+echo "========================================"
 echo ""
 
-# 检查Python环境
+# Change to script directory
+cd "$(dirname "$0")"
+
+# Check Python installation
+echo "[1/4] Checking Python installation..."
 if ! command -v python3 &> /dev/null; then
-    echo "错误: 未找到Python3，请先安装Python 3.8+"
+    echo "Error: Python 3 is not installed or not in PATH"
     exit 1
 fi
 
-echo "1. 检查依赖包..."
+echo "   Python version: $(python3 --version)"
+echo "   ✓ Python found"
+echo ""
 
-# 安装依赖
-if [ -f "requirements.txt" ]; then
-    echo "安装Web应用依赖..."
-    pip3 install -r requirements.txt
-    
-    # 检查父目录的依赖
-    if [ -f "../requirements.txt" ]; then
-        echo "安装主项目依赖..."
-        pip3 install -r ../requirements.txt
+# Check Streamlit installation
+echo "[2/4] Checking Streamlit installation..."
+if ! python3 -c "import streamlit" 2>/dev/null; then
+    echo "   Streamlit not found. Installing..."
+    pip3 install streamlit
+    if [ $? -ne 0 ]; then
+        echo "   Error: Failed to install Streamlit"
+        exit 1
     fi
-else
-    echo "错误: 未找到 requirements.txt"
-    exit 1
 fi
 
-# 创建必要的目录
-echo ""
-echo "2. 创建必要的目录..."
-mkdir -p uploads results temp
-
-echo "   目录创建完成"
-
-echo ""
-echo "=========================================="
-echo "启动Streamlit应用..."
-echo "=========================================="
-echo ""
-echo "应用将在浏览器中打开: http://localhost:8501"
-echo "按 Ctrl+C 停止应用"
+echo "   ✓ Streamlit found"
 echo ""
 
-# 启动Streamlit应用
+# Install dependencies
+echo "[3/4] Installing dependencies..."
+if [ -f "requirements.txt" ]; then
+    echo "   Installing web app dependencies..."
+    pip3 install -q -r requirements.txt
+    echo "   ✓ Web app dependencies installed"
+fi
+
+if [ -f "../requirements.txt" ]; then
+    echo "   Installing main project dependencies..."
+    pip3 install -q -r ../requirements.txt
+    echo "   ✓ Main project dependencies installed"
+fi
+
+echo ""
+
+# Create necessary directories
+echo "   Creating necessary directories..."
+mkdir -p uploads results temp logs
+echo "   ✓ Directories created"
+echo ""
+
+# Start Streamlit application
+echo "[4/4] Starting Streamlit application..."
+echo ""
+echo "========================================"
+echo "   Application will open in your browser"
+echo "   URL: http://localhost:8501"
+echo "========================================"
+echo ""
+echo "Press Ctrl+C to stop the server"
+echo ""
+
 streamlit run app.py
